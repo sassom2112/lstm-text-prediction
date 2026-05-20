@@ -1,82 +1,87 @@
-# LSTM Text Sequence Prediction
+# LSTM Text Generation
 
-## Overview
-This project demonstrates how to build and train a Long Short-Term Memory (LSTM) model for sequence prediction and text generation. The model is trained on English text data and can predict or generate sequences of words based on input sentences. It incorporates essential components such as data preprocessing, one-hot encoding, and regularization to ensure robust performance.
+Word-level sequence model trained on English sentences from the [Tatoeba](https://tatoeba.org/) bilingual corpus. Built from scratch in PyTorch to explore the mechanics of sequence modeling — one-hot encoding, hidden state propagation, and temperature-controlled generation — before reaching for higher-level abstractions.
 
 ---
 
-## Features
-- **Data Preprocessing**:
-  - Converts raw text into normalized ASCII format.
-  - Splits the dataset into training, validation, and test sets.
-  - Implements one-hot encoding for representing words as tensors.
-- **LSTM Model**:
-  - Two-layer LSTM with dropout regularization.
-  - Predicts word sequences with End-of-Sequence (EOS) handling.
-- **Training and Optimization**:
-  - Implements CrossEntropyLoss for sequence modeling.
-  - Uses the Adam optimizer with weight decay for regularization.
-  - Integrates a learning rate scheduler and early stopping for efficient training.
-- **Visualization**:
-  - Tracks and plots training, validation, and test losses over epochs.
-  - Visualizes training progress using Matplotlib.
+## Architecture
+
+| Component | Detail |
+|---|---|
+| Input | One-hot encoded words (vocab size + 1 EOS index) |
+| LSTM | 2 layers, hidden size 128, 30% inter-layer dropout |
+| Output | Linear projection → vocabulary logits |
+| Regularization | Dropout + Adam weight decay (λ = 0.01) |
+| LR schedule | Exponential decay, γ = 0.95 per epoch |
+| Parameters | 1,900,511 trainable |
+| Vocabulary | 2,654 unique tokens |
+
+One-hot input (rather than a learned embedding) makes the vocabulary bottleneck explicit in the parameter count and keeps the information flow easy to reason about.
+
+---
+
+## Results
+
+Trained on 3,000 sentences (1k train / 1k val / 1k test), 10 epochs on GPU:
+
+| Split | Final Loss | Perplexity |
+|---|---|---|
+| Train | 5.36 | 212 |
+| Val | 5.70 | 298 |
+| Test | 5.69 | 295 |
+
+Val/test loss plateaus while train loss keeps declining — the gap is expected at this corpus size (3,000 sentences is genuinely small). The perplexity gap between train and val is the clearest signal that a larger dataset or embedding-based input would be the next lever.
+
+---
+
+## Visualizations
+
+The notebook produces four types of plots after training:
+
+**Training curves** — loss and perplexity per epoch across all three splits, showing where overfitting begins.
+
+**Vocabulary frequency** — top-25 words in the corpus; grammatical function words dominate, which is typical for English and explains why the model's greedy outputs skew toward high-frequency words.
+
+**Next-word prediction bar chart** — for any prompt, plots the model's softmax distribution over the top-10 predicted next words. This is the clearest window into what word co-occurrence patterns the LSTM captured.
+
+**Hidden state magnitude heatmap** — L2 norm of the top-layer hidden state at each word position. Spikes indicate timesteps where the model updates its representation strongly.
+
+---
+
+## Generation
+
+`temperature=0` uses greedy argmax; higher values sample from the softmax distribution. With a 3,000-sentence corpus the outputs are limited, but the temperature effect is observable:
+
+```text
+Prompt: 'i am'
+  greedy    : i am to to
+  temp=0.5  : i am was the
+  temp=1.0  : i am most keys his but
+
+Prompt: 'she is'
+  greedy    : she is to to
+  temp=1.0  : she is it him her lucky you of
+```
+
+Greedy decoding collapses to high-frequency words ("to", "the") quickly — a good illustration of why temperature sampling and beam search exist.
+
+---
+
+## Setup
+
+```bash
+git clone <repo-url>
+cd lstm-text-prediction
+pip install torch matplotlib scikit-learn numpy
+jupyter notebook LSTM_Based_Text_Generation_for_Sequence_Learning.ipynb
+```
+
+The first cell downloads and extracts the dataset automatically.
 
 ---
 
 ## Dataset
-The project uses a bilingual English-to-Spanish dataset from the [Tatoeba Project](https://tatoeba.org/), specifically the `spa.txt` file:
-- **Source**: https://www.manythings.org/anki/spa-eng.zip
-- **Preprocessing**:
-  - Normalizes text by converting to lowercase, removing special characters, and trimming whitespace.
-  - Splits sentences into individual words for input-output pair generation.
 
----
-
-## Key Components
-### 1. **Data Handling**
-- Parses the dataset into normalized English sentence pairs.
-- Creates one-hot encoded tensors for input and target sequences.
-- Splits the dataset into training (1000 samples), validation (1000 samples), and test (1000 samples).
-
-### 2. **Model Architecture**
-- **Input Size**: Vocabulary size + 1 (for EOS token).
-- **Hidden Size**: 128 features.
-- **Output Size**: Vocabulary size + 1.
-- Two-layer LSTM with dropout regularization (30%).
-- Fully connected layer for sequence prediction.
-
-### 3. **Training**
-- **Loss Function**: CrossEntropyLoss for multi-class classification.
-- **Optimizer**: Adam with a learning rate of 0.001 and weight decay of 0.01 for regularization.
-- **Learning Rate Scheduler**: Exponential decay with gamma = 0.95.
-- Implements early stopping to halt training if validation loss does not improve for 3 consecutive epochs.
-
-### 4. **Prediction**
-- Generates word sequences by predicting the most probable next word iteratively until the EOS token is reached or a maximum length is achieved.
-
----
-
-## How to Use
-### Prerequisites
-- Python 3.x
-- Libraries: `torch`, `numpy`, `matplotlib`, `scikit-learn`
-
-### Steps to Run
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
-   ```
-2. Install dependencies:
-    ```bash
-    pip install torch matplotlib scikit-learn numpy
-
-    ```
-3. Run the script to preprocess data, train the model, and generate predictions:
-```bash
-python lstm_text_prediction.py
-```
-## Future Enhancements
-- Extend to multilingual datasets for broader sequence modeling.
-- Implement attention mechanisms for improved long-range dependencies.
-- Add BLEU score evaluation for better performance analysis.
+- **Source**: [Tatoeba Project](https://tatoeba.org/) English-Spanish corpus via [manythings.org](https://www.manythings.org/anki/)
+- **Used**: English side only (141,543 sentences total; 3,000 sampled)
+- **License**: [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
