@@ -30,6 +30,15 @@ body {
   margin-bottom: 18px;
 }
 
+.lesson-note {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #666;
+  max-width: 560px;
+  margin: 6px auto 0;
+  line-height: 1.5;
+}
+
 .top-btn-row {
   display: flex;
   justify-content: center;

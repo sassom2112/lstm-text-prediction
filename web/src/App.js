@@ -52,6 +52,10 @@ export default function App() {
     <div className="app">
       <h1 className="title">LSTM Text Generation</h1>
       <div className="subtitle">Word-level sequence model trained on English sentences</div>
+      <div className="lesson-note">
+        Trained on 3,000 short sentences — intentionally minimal to show what a baseline LSTM learns,
+        and why attention mechanisms and transformers exist.
+      </div>
       <div className="top-btn-row">
         <a
           className="btn-outline"
