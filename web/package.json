@@ -2,7 +2,7 @@
   "name": "lstm-text-prediction",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://sassom2112.github.io/lstm-text-prediction",
+  "homepage": "https://lstm.di-sasso.com",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
