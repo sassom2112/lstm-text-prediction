@@ -1,5 +1,7 @@
 # LSTM Text Generation
 
+![LSTM Text Generation App](lstm.png)
+
 Word-level sequence model trained on English sentences from the [Tatoeba](https://tatoeba.org/) bilingual corpus. Built from scratch in PyTorch to explore the mechanics of sequence modeling — one-hot encoding, hidden state propagation, and temperature-controlled generation — before reaching for higher-level abstractions.
 
 ---
