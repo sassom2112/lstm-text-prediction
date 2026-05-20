@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+venv/
+
+# Dataset (downloaded at runtime)
+spa.txt
+spa-eng.zip
+_about.txt
+
+# Node
+web/node_modules/
+web/build/
+web/.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
