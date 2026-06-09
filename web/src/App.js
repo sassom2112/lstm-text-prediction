@@ -50,11 +50,11 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1 className="title">LSTM Text Generation</h1>
-      <div className="subtitle">Word-level sequence model trained on English sentences</div>
+      <h1 className="title">GPT-Nano Text Generation</h1>
+      <div className="subtitle">Causal transformer trained on WikiText-2 · 7M params · BPE tokenization</div>
       <div className="lesson-note">
-        Trained on 3,000 short sentences — intentionally minimal to show what a baseline LSTM learns,
-        and why attention mechanisms and transformers exist.
+        Built from scratch in PyTorch — causal self-attention, weight tying, cosine LR decay.
+        Trained on GPU via a full AWS ML pipeline: S3 → SageMaker → Serverless Endpoint → Lambda + API Gateway.
       </div>
       <div className="top-btn-row">
         <a
@@ -73,7 +73,7 @@ export default function App() {
           <div className="panel-label">PROMPT</div>
           <textarea
             className="prompt-input"
-            placeholder={"Type a prompt and press Enter…\n\nTry: i am, she wants to, the cat"}
+            placeholder={"Type a prompt and press Enter…\n\nTry: the history of, in the early, scientists discovered"}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -134,7 +134,7 @@ export default function App() {
 
         {/* Right: next-word probability bars */}
         <div className="panel">
-          <div className="panel-label">NEXT WORD PROBABILITIES</div>
+          <div className="panel-label">NEXT TOKEN PROBABILITIES</div>
           <ConfidenceBars words={topWords} />
         </div>
       </div>

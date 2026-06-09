@@ -21,3 +21,4 @@ web/.env.local
 
 # OS
 .DS_Store
+transformer/local_output/model.pt
