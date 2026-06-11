@@ -183,6 +183,16 @@ body {
   line-height: 1.6;
 }
 
+.cold-start-note {
+  font-size: 0.8rem;
+  color: #a0a0b0;
+  background: #1a1a2a;
+  border: 1px solid #333355;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
 .error-msg {
   font-size: 0.85rem;
   color: #ff6b6b;

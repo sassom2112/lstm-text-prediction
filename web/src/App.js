@@ -11,26 +11,39 @@ export default function App() {
   const [generated, setGenerated] = useState("");
   const [topWords, setTopWords] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [slowStart, setSlowStart] = useState(false);
   const [error, setError] = useState("");
 
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim()) return;
     setLoading(true);
+    setSlowStart(false);
     setError("");
+    const warmupTimer = setTimeout(() => setSlowStart(true), 8000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
     try {
       const res = await fetch(`${API_URL}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: prompt.trim(), temperature, max_length: maxLength }),
+        signal: controller.signal,
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Request failed");
       setGenerated(data.generated);
       setTopWords(data.top_words);
     } catch (e) {
-      setError(e.message);
+      if (e.name === "AbortError") {
+        setError("Request timed out. The model endpoint may be unavailable.");
+      } else {
+        setError(e.message);
+      }
     } finally {
+      clearTimeout(warmupTimer);
+      clearTimeout(timeoutId);
       setLoading(false);
+      setSlowStart(false);
     }
   }, [prompt, temperature, maxLength]);
 
@@ -115,12 +128,18 @@ export default function App() {
               onClick={handleGenerate}
               disabled={loading || !prompt.trim()}
             >
-              {loading ? "Generating…" : "Generate"}
+              {loading ? (slowStart ? "Warming up model…" : "Generating…") : "Generate"}
             </button>
             <button className="btn-secondary" onClick={handleClear}>
               Clear
             </button>
           </div>
+
+          {loading && slowStart && (
+            <div className="cold-start-note">
+              SageMaker Serverless endpoint is cold — first request takes ~15–30s.
+            </div>
+          )}
 
           {error && <div className="error-msg">{error}</div>}
 
